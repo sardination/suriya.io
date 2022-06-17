@@ -32,18 +32,30 @@
 
     <script>
         var messages = [
-            [["t", "Hi! I'm Suriya"]],
-            [["t", "Thanks for visiting my website"]],
-            [["t", "I'm a systems engineer at "],
-             ["a", {"href": "https://whist.com", "text": "Whist"}]],
+            [["t", "Hi! I'm Suriya."]],
+            [["t", "Thanks for visiting my website."]],
+            [["t", "I'm currently a systems engineer at "],
+             ["a", {"href": "https://whist.com", "text": "Whist"}],
+             ["t", "."]],
             [["t", "I sometimes build things like "],
-             ["a", {"href": "https://beancounter.me/", "text": "Bean Counter"}]],
+             ["a", {"href": "https://beancounter.me/", "text": "Bean Counter"}],
+             ["t", "."]],
             [["t", "This is my "],
-             ["a", {"href": "https://github.com/sardination", "text": "GitHub"}]],
+             ["a", {"href": "https://github.com/sardination", "text": "GitHub"}],
+             ["t", "."]],
             [["t", "This is my "],
-             ["a", {"href": "https://linkedin.com/in/suriyak/", "text": "LinkedIn"}]],
+             ["a", {"href": "https://linkedin.com/in/suriyak/", "text": "LinkedIn"}],
+             ["t", "."]],
+            [["t", "Yes, this entire website is an SVG."]],
             [["t", "Come back later to see what else I'm doing!"]],
         ];
+
+        var sunGroupElem;
+        var circleElem;
+        var sunAnimateElem;
+        var raysElem;
+        var messageGroupElem;
+        var messageGroupFadeElem;
 
         window.onload = function() {
             var xmlns_svg = "http://www.w3.org/2000/svg";
@@ -53,18 +65,77 @@
             svg.setAttribute("id", "intro");
             svg.setAttribute("viewBox", "0 0 1000 1000");
 
+            sunGroupElem = document.createElementNS(xmlns_svg, "g");
+            sunGroupElem.setAttribute("id", "sun");
+
             var cx = 500;
             var cy = 500;
             var r = 100;
             var dif = 18;
 
-            var circleElem = document.createElementNS(xmlns_svg, "circle");
+            raysElem = document.createElementNS(xmlns_svg, "path");
+            raysElem.setAttribute("stroke", "#FCB900");
+            raysElem.setAttribute("fill", "#FCB900");
+            raysElem.setAttribute("opacity", "0%");
+            var numRays = 10;
+            var rayPathStartX = cx + r + 50;
+            var rayPathStartY = cy;
+            var rayPath = `M${cx + r + 50},${cy} `;
+            for (var i = 0; i < numRays; i++) {
+                var rayPointXR = r + 50 + 100 * Math.random();
+                var rayPointYR = r + 50 + 100 * Math.random();
+                var rayXR = r + 20 + 100 * Math.random();
+                var rayYR = r + 20 + 100 * Math.random();
+                var rayPointX = cx + rayPointXR * Math.cos(2 * Math.PI * ((i + 1) / numRays));
+                var rayPointY = cy + rayPointYR * Math.sin(2 * Math.PI * ((i + 1) / numRays));
+                if (i < numRays - 1) {
+                    rayPath += `A${rayXR} ${rayYR} 0 0 0 ${rayPointX} ${rayPointY}`;
+                } else {
+                    rayPath += `A${rayXR} ${rayYR} 0 0 0 ${rayPathStartX} ${rayPathStartY}`;
+                }
+            }
+            raysElem.setAttribute("d", rayPath);
+
+            var raysFadeInElem = document.createElementNS(xmlns_svg, "animate");
+            raysFadeInElem.setAttribute("id", "raysFadeIn");
+            raysFadeInElem.setAttribute("attributeName", "opacity");
+            raysFadeInElem.setAttribute("from", "0%");
+            raysFadeInElem.setAttribute("to", "100%");
+            raysFadeInElem.setAttribute("dur", "2s");
+            raysFadeInElem.setAttribute("fill", "freeze");
+            raysFadeInElem.setAttribute("begin", "textFade.end");
+            raysElem.appendChild(raysFadeInElem);
+
+            sunGroupElem.appendChild(raysElem);
+
+            circleElem = document.createElementNS(xmlns_svg, "circle");
             circleElem.setAttribute("cx", cx);
             circleElem.setAttribute("cy", cy);
             circleElem.setAttribute("r", r);
             circleElem.setAttribute("fill", "#FCCB00");
-            svg.appendChild(circleElem);
+            circleElem.setAttribute("onclick", "moveContents()");
+            circleElem.setAttribute("style", "cursor:pointer");
+            circleElem.setAttribute("id", "sunCircle");
+            sunGroupElem.appendChild(circleElem);
 
+            sunAnimateElem = document.createElementNS(xmlns_svg, "animateMotion");
+            sunAnimateElem.setAttribute("dur", "3s");
+            sunAnimateElem.setAttribute("fill", "freeze");
+            sunAnimateElem.setAttribute("path", `M0,0 V-${cy}`);
+            sunAnimateElem.setAttribute("begin", "raysFadeIn.end");
+            sunGroupElem.appendChild(sunAnimateElem);
+
+            svg.appendChild(sunGroupElem);
+
+            // TODO: on click, move entire circle up and draw surrounding "rays"; move text down stacked in order (centered un-bulleted list)
+            // var clickMeElem = document.createElementNS(xmlns_svg, "text");
+            // clickMeElem.textContent = "Click Me!";
+            // clickMeElem.setAttribute("x", cx);
+            // clickMeElem.setAttribute("y", cy);
+            // clickMeElem.setAttribute("text-anchor", "middle")
+            // svg.appendChild(clickMeElem);
+
+            messageGroupElem = document.createElementNS(xmlns_svg, "g");
             var numMessages = messages.length;
             messages.forEach(function(messageList, index) {
                 var pathElem = document.createElementNS(xmlns_svg, "path");
@@ -74,12 +145,12 @@
                 var distributions = 4;
 
                 // Start the text at different points around the circle
-                var x_delta = textR * Math.cos(2 * Math.PI * (index / distributions));
-                var y_delta = textR * Math.sin(2 * Math.PI * (index / distributions));
-                var startX = cx + x_delta;
-                var startY = cy + y_delta;
-                var halfX = cx - x_delta;
-                var halfY = cy - y_delta;
+                var xDelta = textR * Math.cos(2 * Math.PI * (index / distributions));
+                var yDelta = textR * Math.sin(2 * Math.PI * (index / distributions));
+                var startX = cx + xDelta;
+                var startY = cy + yDelta;
+                var halfX = cx - xDelta;
+                var halfY = cy - yDelta;
 
                 // Double the circle so that text doesn't cut off when rotating
                 var pathString = `M${startX},${startY} A${textR} ${textR} 0 1 1 ${halfX} ${halfY} A${textR} ${textR} 0 1 1 ${startX} ${startY} A${textR} ${textR} 0 1 1 ${halfX} ${halfY} A${textR} ${textR} 0 1 1 ${startX} ${startY} z`;
@@ -114,15 +185,35 @@
                 animateElem.setAttribute("values", `${startVal};${middleVal};${endVal}`);
                 // Make each text travel at different speeds
                 var duration = 5 + 10 * Math.random();
+                var totalDuration = 60;
                 animateElem.setAttribute("dur", `${duration}s`);
-                animateElem.setAttribute("repeatCount", "indefinite");
+                animateElem.setAttribute("repeatCount", `${totalDuration / duration}`);
                 textPathElem.appendChild(animateElem);
 
                 textElem.appendChild(textPathElem);
-                svg.appendChild(textElem);
+                messageGroupElem.appendChild(textElem);
             });
 
+            messageGroupFadeElem = document.createElementNS(xmlns_svg, "animate");
+            messageGroupFadeElem.setAttribute("id", "textFade");
+            messageGroupFadeElem.setAttribute("attributeName", "opacity");
+            messageGroupFadeElem.setAttribute("from", "100%");
+            messageGroupFadeElem.setAttribute("to", "0%");
+            messageGroupFadeElem.setAttribute("dur", "2s");
+            messageGroupFadeElem.setAttribute("fill", "freeze");
+            messageGroupFadeElem.setAttribute("begin", "indefinite");
+            messageGroupElem.appendChild(messageGroupFadeElem);
+
+            svg.appendChild(messageGroupElem);
+
             document.body.appendChild(svg);
+        }
+
+        function moveContents() {
+            raysElem.style.visibility = "visible";
+            messageGroupFadeElem.beginElement();
+            circleElem.style.removeProperty("cursor");
+            circleElem.onclick = null;
         }
     </script>
 </head>
