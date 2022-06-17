@@ -66,7 +66,7 @@
             raysElem = document.createElementNS(xmlns_svg, "path");
             raysElem.setAttribute("stroke", "#FCB900");
             raysElem.setAttribute("fill", "#FCB900");
-            raysElem.setAttribute("opacity", "0%");
+            raysElem.setAttribute("opacity", "0");
             var numRays = 10;
             var rayPathStartX = cx + r + 50;
             var rayPathStartY = cy;
@@ -89,8 +89,8 @@
             var raysFadeInElem = document.createElementNS(xmlns_svg, "animate");
             raysFadeInElem.setAttribute("id", "raysFadeIn");
             raysFadeInElem.setAttribute("attributeName", "opacity");
-            raysFadeInElem.setAttribute("from", "0%");
-            raysFadeInElem.setAttribute("to", "100%");
+            raysFadeInElem.setAttribute("from", "0");
+            raysFadeInElem.setAttribute("to", "1");
             raysFadeInElem.setAttribute("dur", "2s");
             raysFadeInElem.setAttribute("fill", "freeze");
             raysFadeInElem.setAttribute("begin", "textFadeOut.end");
@@ -168,7 +168,7 @@
                 var endVal = 2 * Math.PI * textR;
                 spinAnimateElem.setAttribute("values", `${startVal};${middleVal};${endVal}`);
                 // Make each text travel at different speeds
-                var duration = 5 + 10 * Math.random();
+                var duration = 25 + 10 * Math.random();
                 var totalDuration = 60;
                 spinAnimateElem.setAttribute("dur", `${duration}s`);
                 spinAnimateElem.setAttribute("repeatCount", "indefinite");
@@ -199,8 +199,8 @@
             messageGroupFadeOutElem = document.createElementNS(xmlns_svg, "animate");
             messageGroupFadeOutElem.setAttribute("id", "textFadeOut");
             messageGroupFadeOutElem.setAttribute("attributeName", "opacity");
-            messageGroupFadeOutElem.setAttribute("from", "100%");
-            messageGroupFadeOutElem.setAttribute("to", "0%");
+            messageGroupFadeOutElem.setAttribute("from", "1");
+            messageGroupFadeOutElem.setAttribute("to", "0");
             messageGroupFadeOutElem.setAttribute("dur", "1s");
             messageGroupFadeOutElem.setAttribute("fill", "freeze");
             messageGroupFadeOutElem.setAttribute("begin", "indefinite");
@@ -209,8 +209,8 @@
             messageGroupFadeInElem = document.createElementNS(xmlns_svg, "animate");
             messageGroupFadeInElem.setAttribute("id", "textFadeIn");
             messageGroupFadeInElem.setAttribute("attributeName", "opacity");
-            messageGroupFadeInElem.setAttribute("from", "0%");
-            messageGroupFadeInElem.setAttribute("to", "100%");
+            messageGroupFadeInElem.setAttribute("from", "0");
+            messageGroupFadeInElem.setAttribute("to", "1");
             messageGroupFadeInElem.setAttribute("dur", "1s");
             messageGroupFadeInElem.setAttribute("fill", "freeze");
             messageGroupFadeInElem.setAttribute("begin", "sunrise.end");
@@ -220,14 +220,19 @@
 
             document.body.appendChild(svg);
 
-            // If user doesn't click circle after 8 seconds, then auto-run.
-            setTimeout(moveContents, 8000);
+            // If user doesn't click circle after 4 seconds, then auto-run.
+            setTimeout(moveContents, 4000);
         }
 
+        var calledMoveContents = false;
+
         function moveContents() {
-            messageGroupFadeOutElem.beginElement();
-            circleElem.style.removeProperty("cursor");
-            circleElem.onclick = null;
+            if (!calledMoveContents) {
+                calledMoveContents = true;
+                messageGroupFadeOutElem.beginElement();
+                circleElem.style.removeProperty("cursor");
+                circleElem.onclick = null;
+            }
         }
     </script>
 </head>
