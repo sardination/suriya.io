@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<head>
+    <title>Suriya's Super Cool SVG</title>
+    <link rel="icon" type="image/png" href="img/favicon.png">
+
+    <style>
+        html,body {
+          height:100%;
+          width:100%;
+          margin:0;
+        }
+        body {
+          display:flex;
+          background-color: #E2EEF9;
+        }
+        svg {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            margin: auto;
+        }
+    </style>
+
+    <script>
+        var messages = [
+            [["t", "Hi! I'm Suriya."]],
+            [["t", "Thanks for visiting my website."]],
+            [["t", "I'm currently a systems engineer at "],
+             ["a", {"href": "https://whist.com", "text": "Whist"}],
+             ["t", "."]],
+            [["t", "I sometimes build things like "],
+             ["a", {"href": "https://beancounter.me/", "text": "Bean Counter"}],
+             ["t", "."]],
+            [["t", "This is my "],
+             ["a", {"href": "https://github.com/sardination", "text": "GitHub"}],
+             ["t", "."]],
+            [["t", "This is my "],
+             ["a", {"href": "https://linkedin.com/in/suriyak/", "text": "LinkedIn"}],
+             ["t", "."]],
+            [["t", "Yes, this entire website is an SVG."]],
+            [["t", "Come back later to see what else I'm doing!"]],
+        ];
+
+        var sunGroupElem;
+        var circleElem;
+        var sunAnimateElem;
+        var raysElem;
+        var messageGroupElem;
+        var messageGroupFadeElem;
+
+        window.onload = function() {
+            var xmlns_svg = "http://www.w3.org/2000/svg";
+            var xmlns_xlink = "http://www.w3.org/1999/xlink";
+
+            var svg = document.createElementNS(xmlns_svg, "svg");
+            svg.setAttribute("viewBox", "0 0 1000 1000");
+
+            sunGroupElem = document.createElementNS(xmlns_svg, "g");
+            sunGroupElem.setAttribute("id", "sun");
+
+            var cx = 500;
+            var cy = 500;
+            var r = 100;
+            var dif = 18;
+            var rayMaxR = 150;
+
+            raysElem = document.createElementNS(xmlns_svg, "path");
+            raysElem.setAttribute("stroke", "#FCB900");
+            raysElem.setAttribute("fill", "#FCB900");
+            raysElem.setAttribute("opacity", "0");
+            var numRays = 10;
+            var rayPathStartX = cx + r + 50;
+            var rayPathStartY = cy;
+            var rayPath = `M${cx + r + 50},${cy} `;
+            for (var i = 0; i < numRays; i++) {
+                var rayPointXR = r + 50 + (rayMaxR - 50) * Math.random();
+                var rayPointYR = r + 50 + (rayMaxR - 50) * Math.random();
+                var rayXR = r + 20 + 100 * Math.random();
+                var rayYR = r + 20 + 100 * Math.random();
+                var rayPointX = cx + rayPointXR * Math.cos(2 * Math.PI * ((i + 1) / numRays));
+                var rayPointY = cy + rayPointYR * Math.sin(2 * Math.PI * ((i + 1) / numRays));
+                if (i < numRays - 1) {
+                    rayPath += `A${rayXR} ${rayYR} 0 0 0 ${rayPointX} ${rayPointY}`;
+                } else {
+                    rayPath += `A${rayXR} ${rayYR} 0 0 0 ${rayPathStartX} ${rayPathStartY}`;
+                }
+            }
+            raysElem.setAttribute("d", rayPath);
+
+            var raysFadeInElem = document.createElementNS(xmlns_svg, "animate");
+            raysFadeInElem.setAttribute("id", "raysFadeIn");
+            raysFadeInElem.setAttribute("attributeName", "opacity");
+            raysFadeInElem.setAttribute("from", "0");
+            raysFadeInElem.setAttribute("to", "1");
+            raysFadeInElem.setAttribute("dur", "2s");
+            raysFadeInElem.setAttribute("fill", "freeze");
+            raysFadeInElem.setAttribute("begin", "textFadeOut.end");
+            raysElem.appendChild(raysFadeInElem);
+
+            sunGroupElem.appendChild(raysElem);
+
+            circleElem = document.createElementNS(xmlns_svg, "circle");
+            circleElem.setAttribute("cx", cx);
+            circleElem.setAttribute("cy", cy);
+            circleElem.setAttribute("r", r);
+            circleElem.setAttribute("fill", "#FCCB00");
+            circleElem.setAttribute("onclick", "moveContents()");
+            circleElem.setAttribute("style", "cursor:pointer");
+            circleElem.setAttribute("id", "sunCircle");
+            sunGroupElem.appendChild(circleElem);
+
+            sunAnimateElem = document.createElementNS(xmlns_svg, "animateMotion");
+            sunAnimateElem.setAttribute("id", "sunrise");
+            sunAnimateElem.setAttribute("dur", "3s");
+            sunAnimateElem.setAttribute("fill", "freeze");
+            sunAnimateElem.setAttribute("path", `M0,0 V-${cy}`);
+            sunAnimateElem.setAttribute("begin", "raysFadeIn.end");
+            sunGroupElem.appendChild(sunAnimateElem);
+
+            svg.appendChild(sunGroupElem);
+
+            messageGroupElem = document.createElementNS(xmlns_svg, "g");
+            var numMessages = messages.length;
+            messages.forEach(function(messageList, index) {
+                var pathElem = document.createElementNS(xmlns_svg, "path");
+                pathElem.setAttribute("fill", "none");
+                pathElem.setAttribute("id", `path${numMessages - index}`);
+                var textR = r + dif * (numMessages - index);
+                var distributions = 4;
+
+                // Start the text at different points around the circle
+                var xDelta = textR * Math.cos(2 * Math.PI * (index / distributions));
+                var yDelta = textR * Math.sin(2 * Math.PI * (index / distributions));
+                var startX = cx + xDelta;
+                var startY = cy + yDelta;
+                var halfX = cx - xDelta;
+                var halfY = cy - yDelta;
+
+                // Double the circle so that text doesn't cut off when rotating, and add a lower line for the final
+                //    resting place of the text.
+                var pathString = `M${startX},${startY} A${textR} ${textR} 0 1 1 ${halfX} ${halfY} A${textR} ${textR} 0 1 1 ${startX} ${startY} A${textR} ${textR} 0 1 1 ${halfX} ${halfY} A${textR} ${textR} 0 1 1 ${startX} ${startY} z M0,${cy + index * 30 - r} H1000`;
+                pathElem.setAttribute("d", pathString);
+
+                svg.appendChild(pathElem);
+
+                var textElem = document.createElementNS(xmlns_svg, "text");
+                textElem.setAttribute("font-size", "18px");
+                textElem.setAttribute("fill", "black");
+
+                var textPathElem = document.createElementNS(xmlns_svg, "textPath");
+                textPathElem.setAttributeNS(xmlns_xlink, "xlink:href", `#path${numMessages - index}`);
+                messageList.forEach(function(messagePart, _) {
+                    if (messagePart[0] == "t") {
+                        textPathElem.insertAdjacentText("beforeend", messagePart[1]);
+                    } else if (messagePart[0] == "a") {
+                        var anchorElem = document.createElementNS(xmlns_svg, "a");
+                        anchorElem.setAttribute("fill", "#FCB900");
+                        anchorElem.setAttribute("href", messagePart[1]["href"]);
+                        anchorElem.textContent = messagePart[1]["text"];
+                        textPathElem.appendChild(anchorElem)
+                    }
+                });
+
+                var spinAnimateElem = document.createElementNS(xmlns_svg, "animate");
+                spinAnimateElem.setAttribute("attributeName", "startOffset");
+                // Use one circumference to set animating text start positions
+                var startVal = 0;
+                var middleVal = Math.PI * textR;
+                var endVal = 2 * Math.PI * textR;
+                spinAnimateElem.setAttribute("values", `${startVal};${middleVal};${endVal}`);
+                // Make each text travel at different speeds
+                var duration = 25 + 10 * Math.random();
+                var totalDuration = 60;
+                spinAnimateElem.setAttribute("dur", `${duration}s`);
+                spinAnimateElem.setAttribute("repeatCount", "indefinite");
+                spinAnimateElem.setAttribute("fill", "freeze");
+                spinAnimateElem.setAttribute("end", "textFadeOut.end");
+                textPathElem.appendChild(spinAnimateElem);
+
+                var centerTextAnimateElem = document.createElementNS(xmlns_svg, "set");
+                centerTextAnimateElem.setAttribute("dur", "indefinite");
+                centerTextAnimateElem.setAttribute("begin", "textFadeOut.end");
+                centerTextAnimateElem.setAttribute("attributeName", "text-anchor");
+                centerTextAnimateElem.setAttribute("to", "middle");
+                textPathElem.appendChild(centerTextAnimateElem);
+
+                // Settle to the middle of the text line (2 circumferences + 50% of the box width)
+                var settleTextAnimateElem = document.createElementNS(xmlns_svg, "set");
+                settleTextAnimateElem.setAttribute("dur", "indefinite");
+                settleTextAnimateElem.setAttribute("begin", "textFadeOut.end");
+                settleTextAnimateElem.setAttribute("attributeName", "startOffset");
+                settleTextAnimateElem.setAttribute("to", 2 * 2 * Math.PI * textR + 500);
+                textPathElem.appendChild(settleTextAnimateElem);
+
+                textElem.appendChild(textPathElem);
+
+                messageGroupElem.appendChild(textElem);
+            });
+
+            messageGroupFadeOutElem = document.createElementNS(xmlns_svg, "animate");
+            messageGroupFadeOutElem.setAttribute("id", "textFadeOut");
+            messageGroupFadeOutElem.setAttribute("attributeName", "opacity");
+            messageGroupFadeOutElem.setAttribute("from", "1");
+            messageGroupFadeOutElem.setAttribute("to", "0");
+            messageGroupFadeOutElem.setAttribute("dur", "1s");
+            messageGroupFadeOutElem.setAttribute("fill", "freeze");
+            messageGroupFadeOutElem.setAttribute("begin", "indefinite");
+            messageGroupElem.appendChild(messageGroupFadeOutElem);
+
+            messageGroupFadeInElem = document.createElementNS(xmlns_svg, "animate");
+            messageGroupFadeInElem.setAttribute("id", "textFadeIn");
+            messageGroupFadeInElem.setAttribute("attributeName", "opacity");
+            messageGroupFadeInElem.setAttribute("from", "0");
+            messageGroupFadeInElem.setAttribute("to", "1");
+            messageGroupFadeInElem.setAttribute("dur", "1s");
+            messageGroupFadeInElem.setAttribute("fill", "freeze");
+            messageGroupFadeInElem.setAttribute("begin", "sunrise.end");
+            messageGroupElem.appendChild(messageGroupFadeInElem);
+
+            svg.appendChild(messageGroupElem);
+
+            document.body.appendChild(svg);
+
+            // If user doesn't click circle after 4 seconds, then auto-run.
+            setTimeout(moveContents, 4000);
+        }
+
+        var calledMoveContents = false;
+
+        function moveContents() {
+            if (!calledMoveContents) {
+                calledMoveContents = true;
+                messageGroupFadeOutElem.beginElement();
+                circleElem.style.removeProperty("cursor");
+                circleElem.onclick = null;
+            }
+        }
+    </script>
+</head>
+
+<body>
+</body>
+</html>
