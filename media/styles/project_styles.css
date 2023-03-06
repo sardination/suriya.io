@@ -1,0 +1,29 @@
+h3 {
+    text-align: center;
+    text-decoration: underline;
+}
+
+div.project-info-row {
+    display: flex;
+    flex-direction: row;
+
+    margin: auto;
+    margin-right: 10%;
+    margin-left: 10%;
+}
+
+div.project-info-row > div {
+    margin: 5px;
+}
+
+div.project-demo-video > video {
+    height: 500px;
+}
+
+hr {
+    width: 75%;
+}
+
+ul.feature-list > li {
+    margin-bottom: 5px;
+}
